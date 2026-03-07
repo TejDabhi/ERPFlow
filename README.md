@@ -205,6 +205,60 @@ Example response:
 }
 ```
 
+
+## Common Issues & Fixes
+
+### PostgreSQL Connection Error with `@` in Password
+
+While configuring the PostgreSQL connection for the FastAPI backend, an error occurred when the database password contained the `@` character.
+
+Example problematic connection string:
+
+```
+postgresql://postgres:PgDev@2025@localhost/erp_system
+```
+
+This caused the error:
+
+```
+could not translate host name "2025@localhost"
+```
+
+### Cause
+
+In a database URL, the `@` character is used as a separator between the password and the host:
+
+```
+postgresql://username:password@host:port/database
+```
+
+If the password itself contains `@`, the URL parser misinterprets it.
+
+### Solution
+
+The `@` character must be **URL encoded** as `%40`.
+
+Correct connection string:
+
+```
+postgresql://postgres:PgDev%402025@localhost:5432/erp_system
+```
+
+After encoding the special character, the FastAPI application successfully connected to PostgreSQL.
+
+### Lesson Learned
+
+When using database URLs, always **URL-encode special characters** in usernames or passwords such as:
+
+| Character | Encoding |
+| --------- | -------- |
+| `@`       | `%40`    |
+| `:`       | `%3A`    |
+| `/`       | `%2F`    |
+| `#`       | `%23`    |
+
+This prevents connection parsing errors in database drivers like SQLAlchemy.
+
 ---
 
 # Future Improvements
