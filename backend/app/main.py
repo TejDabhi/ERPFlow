@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers import customers
+from app.routers import customers, products
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -16,7 +16,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Include routers
 app.include_router(customers.router)
+app.include_router(products.router)
+
 
 @app.get("/")
 def read_root():
