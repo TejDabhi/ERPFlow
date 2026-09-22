@@ -19,8 +19,7 @@ def create_customer(db: Session, customer: CustomerCreate):
     db_customer = Customer(
         name=customer.name,
         email=customer.email,
-        phone=customer.phone,
-        address=customer.address,
+        phone_number=customer.phone_number,  # Corrected to phone_number
     )
     db.add(db_customer)
     db.commit()
