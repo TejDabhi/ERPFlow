@@ -29,9 +29,11 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    # Matches any future preview deployment on your Vercel project:
-    allow_origin_regex=r"https://.*-tejs-projects-95a3334f\.vercel\.app",
+    allow_origins=[
+        "http://localhost:3000",
+        "https://frontend-ohxaum9gc-tejs-projects-95a3334f.vercel.app",
+    ],
+    allow_origin_regex=r"https://.*\.vercel\.app",  # covers all Vercel previews
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
