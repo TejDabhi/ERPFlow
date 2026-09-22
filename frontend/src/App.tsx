@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 
+import Dashboard from "./pages/Dashboard"; // <-- Import here
 import Customers from "./pages/Customers";
 import Products from "./pages/Products";
 import Orders from "./pages/Orders";
@@ -14,7 +15,7 @@ function App() {
 
       <div className="max-w-7xl mx-auto p-6">
         <Routes>
-          <Route path="/" element={<h2 className="text-2xl font-semibold">Dashboard</h2>} />
+          <Route path="/" element={<Dashboard />} />
           <Route path="/customers" element={<Customers />} />
           <Route path="/products" element={<Products />} />
           <Route path="/orders" element={<Orders />} />

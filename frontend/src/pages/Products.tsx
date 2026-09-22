@@ -32,25 +32,48 @@ function Products() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await api.post("/products", {
-      name: form.name,
-      description: form.description,
-      price: Number(form.price),
-      unit_id: Number(form.unit_id),
-    });
+    try {
+      await api.post("/products", {
+        name: form.name,
+        description: form.description,
+        price: Number(form.price),
+        unit_id: Number(form.unit_id),
+      });
 
-    setShowModal(false);
-    setForm({ name: "", description: "", price: "", unit_id: "" });
-    fetchProducts();
+      setShowModal(false);
+      setForm({ name: "", description: "", price: "", unit_id: "" });
+      fetchProducts();
+    } catch (err) {
+      console.error("Failed to create product:", err);
+      alert("Failed to save product. Please try again.");
+    }
+  };
+
+  const handleDelete = async (id: number, name: string) => {
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete product "${name}"?`
+    );
+    if (!confirmDelete) return;
+
+    try {
+      await api.delete(`/products/${id}`);
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+    } catch (err) {
+      console.error("Failed to delete product:", err);
+      alert("Failed to delete product. It may be part of an existing order.");
+    }
   };
 
   return (
-    <div className="p-4">
+    <div className="p-6">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Products</h2>
 
-        <button onClick={() => setShowModal(true)} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        <button
+          onClick={() => setShowModal(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 cursor-pointer"
+        >
           Add Product
         </button>
       </div>
@@ -65,26 +88,45 @@ function Products() {
               <th className="px-4 py-2 text-left border-b">Price</th>
               <th className="px-4 py-2 text-left border-b">Unit ID</th>
               <th className="px-4 py-2 text-left border-b">Created</th>
+              <th className="px-4 py-2 text-center border-b">Actions</th>
             </tr>
           </thead>
 
           <tbody>
-            {products.map((p) => (
-              <tr key={p.id} className="hover:bg-gray-50">
-                <td className="px-4 py-2 border-b">{p.name}</td>
-                <td className="px-4 py-2 border-b">{p.description}</td>
-                <td className="px-4 py-2 border-b">${p.price}</td>
-                <td className="px-4 py-2 border-b">{p.unit_id}</td>
-                <td className="px-4 py-2 border-b">{new Date(p.created_at).toLocaleDateString()}</td>
+            {products.length > 0 ? (
+              products.map((p) => (
+                <tr key={p.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-2 border-b">{p.name}</td>
+                  <td className="px-4 py-2 border-b">{p.description || "—"}</td>
+                  <td className="px-4 py-2 border-b font-medium">${Number(p.price).toFixed(2)}</td>
+                  <td className="px-4 py-2 border-b">{p.unit_id}</td>
+                  <td className="px-4 py-2 border-b text-gray-500 text-sm">
+                    {p.created_at ? new Date(p.created_at).toLocaleDateString() : "—"}
+                  </td>
+                  <td className="px-4 py-2 border-b text-center">
+                    <button
+                      onClick={() => handleDelete(p.id, p.name)}
+                      className="px-3 py-1 bg-red-600 text-white text-xs font-medium rounded hover:bg-red-700 transition cursor-pointer"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={6} className="text-center py-6 text-gray-500">
+                  No products found.
+                </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
           <div className="bg-white p-6 rounded-lg w-96 shadow-lg">
             <h3 className="text-lg font-semibold mb-4">Add Product</h3>
 
@@ -109,6 +151,7 @@ function Products() {
               <input
                 name="price"
                 type="number"
+                step="0.01"
                 placeholder="Price"
                 value={form.price}
                 onChange={handleChange}
@@ -127,11 +170,18 @@ function Products() {
               />
 
               <div className="flex justify-end gap-2 pt-2">
-                <button type="button" onClick={() => setShowModal(false)} className="px-3 py-2 border rounded">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="px-3 py-2 border rounded hover:bg-gray-100"
+                >
                   Cancel
                 </button>
 
-                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
                   Save
                 </button>
               </div>
